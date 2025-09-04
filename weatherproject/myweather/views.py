@@ -106,6 +106,7 @@ def weather_view(request):
             ax2.set_ylabel("Rain (mm)", fontsize=12, color='royalblue')
             ax2.tick_params(axis='y', labelcolor='royalblue')
             shade_night(ax2, data["daily"]["sunrise"], data["daily"]["sunset"])
+            ax2.set_ylim(0, max(rain) * 1.2 if max(rain) > 0 else 1)
 
             # Bottom axis = hours
             ax2.xaxis.set_major_locator(mdates.HourLocator(interval=2))
