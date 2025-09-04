@@ -44,43 +44,53 @@ def weather_view(request):
             rain = data["hourly"]["rain"]
             rain_prob = data["hourly"]["precipitation_probability"]
 
-            # Convert times to datetime objects
+            plt.style.use("seaborn-v0_8-whitegrid")  # clean aesthetic
+
+            # Convert times
             plot_times = [datetime.fromisoformat(t) for t in times]
 
-            # Temperature plot
+            # ===================== Temperature =====================
             fig1, ax1 = plt.subplots(figsize=(10, 4))
-            ax1.plot(plot_times, temps, color='tab:red', marker='o')
-            ax1.set_title("Temperature (°C)")
-            ax1.set_xlabel("Time")
-            ax1.set_ylabel("Temperature (°C)")
+            ax1.plot(plot_times, temps, color='crimson', marker='o', linewidth=2, markersize=6, alpha=0.8)
+            ax1.set_title("🌡 Temperature (°C)", fontsize=16, fontweight="bold", pad=15)
+            ax1.set_xlabel("Time", fontsize=12)
+            ax1.set_ylabel("Temperature (°C)", fontsize=12)
+            ax1.tick_params(axis='both', labelsize=10)
             ax1.xaxis.set_major_locator(mdates.HourLocator(interval=3))
-            plt.xticks(rotation=45)
+            plt.xticks(rotation=45, ha='right')
+            fig1.tight_layout()
             context["temp_plot"] = plot_to_base64(fig1)
 
-            # Rain and Rain Probability plot
+            # ===================== Rain & Probability =====================
             fig2, ax2 = plt.subplots(figsize=(10, 4))
-            ax2.plot(plot_times, rain, color='tab:blue', marker='s', label='Rain (mm)')
-            ax2.set_xlabel("Time")
-            ax2.set_ylabel("Rain (mm)", color='tab:blue')
-            ax2.tick_params(axis='y', labelcolor='tab:blue')
+            ax2.bar(plot_times, rain, color='royalblue', alpha=0.6, label='Rain (mm)', width=0.05)  # bar for rain
+            ax2.set_xlabel("Time", fontsize=12)
+            ax2.set_ylabel("Rain (mm)", fontsize=12, color='royalblue')
+            ax2.tick_params(axis='y', labelcolor='royalblue')
             ax2.xaxis.set_major_locator(mdates.HourLocator(interval=3))
-            plt.xticks(rotation=45)
+            plt.xticks(rotation=45, ha='right')
+
+            # Twin axis for rain probability
             ax3 = ax2.twinx()
-            ax3.plot(plot_times, rain_prob, color='tab:green', marker='x', label='Rain Probability (%)')
-            ax3.set_ylabel("Rain Probability (%)", color='tab:green')
-            ax3.tick_params(axis='y', labelcolor='tab:green')
-            fig2.legend(['Rain (mm)', 'Rain Probability (%)'], loc='upper left')
+            ax3.plot(plot_times, rain_prob, color='seagreen', marker='x', linewidth=2, markersize=6, alpha=0.8, label='Rain Probability (%)')
+            ax3.set_ylabel("Rain Probability (%)", fontsize=12, color='seagreen')
+            ax3.tick_params(axis='y', labelcolor='seagreen')
+
+            fig2.suptitle("🌧 Rain & Rain Probability", fontsize=16, fontweight="bold", y=1.05)
+            fig2.legend(loc='upper left', frameon=True, fontsize=10)
             fig2.tight_layout()
             context["rain_plot"] = plot_to_base64(fig2)
 
-            # Cloud cover plot
+            # ===================== Cloud Cover =====================
             fig3, ax4 = plt.subplots(figsize=(10, 4))
-            ax4.plot(plot_times, clouds, color='tab:gray', marker='d')
-            ax4.set_title("Cloud Cover (%)")
-            ax4.set_xlabel("Time")
-            ax4.set_ylabel("Cloud Cover (%)")
+            ax4.plot(plot_times, clouds, color='dimgray', marker='D', linewidth=2, markersize=5, alpha=0.8)
+            ax4.set_title("☁️ Cloud Cover (%)", fontsize=16, fontweight="bold", pad=15)
+            ax4.set_xlabel("Time", fontsize=12)
+            ax4.set_ylabel("Cloud Cover (%)", fontsize=12)
+            ax4.tick_params(axis='both', labelsize=10)
             ax4.xaxis.set_major_locator(mdates.HourLocator(interval=3))
-            plt.xticks(rotation=45)
+            plt.xticks(rotation=45, ha='right')
+            fig3.tight_layout()
             context["cloud_plot"] = plot_to_base64(fig3)
 
             context["forecast"] = zip(
