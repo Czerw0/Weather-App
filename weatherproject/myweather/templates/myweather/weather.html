@@ -58,6 +58,7 @@
             text-align: center;
             color: #0078d7;
             margin-top: 30px;
+            height: 2;
         }
         ul {
             background: #fff;
@@ -128,13 +129,16 @@
             <li>Weather: {{ weather_codes|get_item:weather.weathercode }}</li>
             <li>Time: {{ weather.time }}</li>
         </ul>
-        <h3>Temperature Plot</h3>
+        <h2>Temperature</h2>
         <img src="data:image/png;base64,{{ temp_plot }}" alt="Temperature Plot"/>
-        <h3>Rain & Rain Probability Plot</h3>
+        <h2>Rain & Rain Probability</h2>
         <img src="data:image/png;base64,{{ rain_plot }}" alt="Rain Plot"/>
-        <h3>Cloud Cover Plot</h3>
-        <img src="data:image/png;base64,{{ cloud_plot }}" alt="Cloud Plot"/>
-        <h3>Forecast (next 2 days):</h3>
+        <h2>Cloud Cover</h2>
+        <img src="data:image/png;base64,{{ cloud_plot }}" alt=s"Cloud Plot"/>
+        <h2>Wind Speed</h2>
+        <img src="data:image/png;base64,{{ wind_plot }}" alt="Wind Plot"/>
+        <h2>Forecast (next 2 days):</h2>
+        
         <table border="1">
             <tr>
                 <th>Time</th>
