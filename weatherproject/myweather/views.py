@@ -8,7 +8,7 @@ import base64
 from django.shortcuts import render
 from .utils import cities, weather_codes
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time 
 
 
 def plot_to_base64(fig):
@@ -44,7 +44,9 @@ def weather_view(request):
                 f"&hourly=temperature_2m,weathercode,cloudcover,rain,precipitation_probability,windspeed_10m"
                 f"&start_date={start_date}&end_date={end_date}"
                 f"&timezone=auto"
+                f"&daily=sunrise,sunset" 
             )
+
             response = requests.get(url)
             data = response.json()
             context["weather"] = data.get("current_weather", {})
@@ -54,13 +56,28 @@ def weather_view(request):
             rain = data["hourly"]["rain"]
             rain_prob = data["hourly"]["precipitation_probability"]
             wind_speed = data["hourly"]["windspeed_10m"]
-            
+
             plt.style.use("seaborn-v0_8-whitegrid")
             plot_times = [datetime.fromisoformat(t) for t in times]
+
+            def shade_night(ax, daily_sunrise, daily_sunset):
+                """Shade night as two continuous blocks per day: 00:00→sunrise and sunset→24:00."""
+                sunrises = [datetime.fromisoformat(t) for t in daily_sunrise]
+                sunsets  = [datetime.fromisoformat(t) for t in daily_sunset]
+
+                for sr, ss in zip(sunrises, sunsets):
+                    day_start = datetime(sr.year, sr.month, sr.day, 0, 0)
+                    next_mid  = day_start + timedelta(days=1)
+
+                    # Midnight → Sunrise
+                    ax.axvspan(day_start, sr, color="grey", alpha=0.25, zorder=0)
+                    # Sunset → Midnight
+                    ax.axvspan(ss, next_mid,  color="grey", alpha=0.25, zorder=0)
 
             # ===================== Temperature =====================
             fig1, ax1 = plt.subplots(figsize=(12, 4))
             ax1.plot(plot_times, temps, color='crimson', marker='o', linewidth=2, markersize=6, alpha=0.8)
+            shade_night(ax1, data["daily"]["sunrise"], data["daily"]["sunset"])
 
             ax1.set_xlabel("Hour of Day", fontsize=12)
             ax1.set_ylabel("Temperature (°C)", fontsize=12)
@@ -71,12 +88,13 @@ def weather_view(request):
             ax1.xaxis.set_major_locator(mdates.HourLocator(interval=2))
             ax1.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
             plt.xticks(rotation=90, ha='center')
-            
+
             # Top axis = days
             ax1_top = ax1.secondary_xaxis('top')
             ax1_top.xaxis.set_major_locator(mdates.DayLocator())
             ax1_top.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
             ax1_top.set_xlabel("Day", fontsize=12)
+            
 
             fig1.tight_layout()
             context["temp_plot"] = plot_to_base64(fig1)
@@ -87,6 +105,7 @@ def weather_view(request):
             ax2.bar(plot_times, rain, color='royalblue', alpha=0.6, label='Rain (mm)', width=0.05)
             ax2.set_ylabel("Rain (mm)", fontsize=12, color='royalblue')
             ax2.tick_params(axis='y', labelcolor='royalblue')
+            shade_night(ax2, data["daily"]["sunrise"], data["daily"]["sunset"])
 
             # Bottom axis = hours
             ax2.xaxis.set_major_locator(mdates.HourLocator(interval=2))
@@ -116,6 +135,7 @@ def weather_view(request):
             # ===================== Cloud Cover =====================
             fig3, ax3 = plt.subplots(figsize=(12, 4))
             ax3.plot(plot_times, clouds, color='dimgray', marker='D', linewidth=2, markersize=5, alpha=0.8)
+            shade_night(ax3, data["daily"]["sunrise"], data["daily"]["sunset"])
 
             ax3.set_ylabel("Cloud Cover (%)", fontsize=12)
             ax3.tick_params(axis='both', labelsize=10)
@@ -137,14 +157,12 @@ def weather_view(request):
             plt.close(fig3)
 
             #=========================== Wind =======================
-
-            fig4, ax4 = plt.subplots(figsize=(12, 4))
-
             # Add text in the center
             fig4, ax4 = plt.subplots(figsize=(12, 4))
             ax4.bar(plot_times, wind_speed, color='royalblue', alpha=0.6, label='Wind (km/h)', width=0.05)
             ax4.set_ylabel("Wind (km/h)", fontsize=12, color='royalblue')
             ax4.tick_params(axis='y', labelcolor='royalblue')
+            shade_night(ax4, data["daily"]["sunrise"], data["daily"]["sunset"])
 
             # Bottom axis = hours
             ax4.xaxis.set_major_locator(mdates.HourLocator(interval=2))
