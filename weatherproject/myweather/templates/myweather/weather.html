@@ -1,0 +1,51 @@
+{% load weather_extras %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MyWeather App</title>
+</head>
+<body>
+    <h1>MyWeather App</h1>
+    <form method="post">
+        
+        {% csrf_token %}
+        <label for="city">Select city:</label>
+        <select name="city" id="city">
+            {% for c in cities %}
+                <option value="{{ c.name }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Get Weather</button>
+    </form>
+    {% if weather %}
+        <h2>Current Weather for {{ city }}</h2>
+        <ul>
+            <li>Temperature: {{ weather.temperature }}°C</li>
+            <li>Windspeed: {{ weather.windspeed }} km/h</li>
+            <li>Weather: {{ weather_codes|get_item:weather.weathercode }}</li>
+            <li>Time: {{ weather.time }}</li>
+        </ul>
+        <h3>Forecast (next 2 days):</h3>
+        <table border="1">
+            <tr>
+                <th>Time</th>
+                <th>Temp (°C)</th>
+                <th>Weather</th>
+                <th>Cloud (%)</th>
+                <th>Rain (mm)</th>
+                <th>Rain Probability (%)</th>
+            </tr>
+            {% for t, temp, code, cloud, rain, prob in forecast %}
+            <tr>
+                <td>{{ t }}</td>
+                <td>{{ temp }}</td>
+                <td>{{ weather_codes|get_item:code }}</td>
+                <td>{{ cloud }}</td>
+                <td>{{ rain }}</td>
+                <td>{{ prob }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+</body>
+</html>
