@@ -15,12 +15,20 @@ def plot_to_base64(fig):
     plt.close(fig)
     return image_base64
 
+
 def weather_view(request):
-    context = {"cities": cities}
+    search_term = ""
+    filtered_cities = cities
     if request.method == "POST":
+        search_term = request.POST.get("search", "").strip()
+        if search_term:
+            filtered_cities = [c for c in cities if search_term.lower() in c["name"].lower()]
         city_name = request.POST.get("city")
-        city = next((c for c in cities if c["name"].lower() == city_name.lower()), None)
+        city = next((c for c in filtered_cities if c["name"].lower() == city_name.lower()), None)
+        context = {"cities": filtered_cities, "search": search_term}
         if city:
+            # ...existing code for weather fetching and plotting...
+            # (copy everything from your current city block here)
             latitude = city["latitude"]
             longitude = city["longitude"]
             now = datetime.utcnow()
@@ -44,12 +52,9 @@ def weather_view(request):
             rain = data["hourly"]["rain"]
             rain_prob = data["hourly"]["precipitation_probability"]
 
-            plt.style.use("seaborn-v0_8-whitegrid")  # clean aesthetic
-
-            # Convert times
+            plt.style.use("seaborn-v0_8-whitegrid")
             plot_times = [datetime.fromisoformat(t) for t in times]
 
-            # ===================== Temperature =====================
             fig1, ax1 = plt.subplots(figsize=(10, 4))
             ax1.plot(plot_times, temps, color='crimson', marker='o', linewidth=2, markersize=6, alpha=0.8)
             ax1.set_title("🌡 Temperature (°C)", fontsize=16, fontweight="bold", pad=15)
@@ -61,16 +66,14 @@ def weather_view(request):
             fig1.tight_layout()
             context["temp_plot"] = plot_to_base64(fig1)
 
-            # ===================== Rain & Probability =====================
             fig2, ax2 = plt.subplots(figsize=(10, 4))
-            ax2.bar(plot_times, rain, color='royalblue', alpha=0.6, label='Rain (mm)', width=0.05)  # bar for rain
+            ax2.bar(plot_times, rain, color='royalblue', alpha=0.6, label='Rain (mm)', width=0.05)
             ax2.set_xlabel("Time", fontsize=12)
             ax2.set_ylabel("Rain (mm)", fontsize=12, color='royalblue')
             ax2.tick_params(axis='y', labelcolor='royalblue')
             ax2.xaxis.set_major_locator(mdates.HourLocator(interval=3))
             plt.xticks(rotation=45, ha='right')
 
-            # Twin axis for rain probability
             ax3 = ax2.twinx()
             ax3.plot(plot_times, rain_prob, color='seagreen', marker='x', linewidth=2, markersize=6, alpha=0.8, label='Rain Probability (%)')
             ax3.set_ylabel("Rain Probability (%)", fontsize=12, color='seagreen')
@@ -81,7 +84,6 @@ def weather_view(request):
             fig2.tight_layout()
             context["rain_plot"] = plot_to_base64(fig2)
 
-            # ===================== Cloud Cover =====================
             fig3, ax4 = plt.subplots(figsize=(10, 4))
             ax4.plot(plot_times, clouds, color='dimgray', marker='D', linewidth=2, markersize=5, alpha=0.8)
             ax4.set_title("☁️ Cloud Cover (%)", fontsize=16, fontweight="bold", pad=15)
@@ -98,4 +100,8 @@ def weather_view(request):
             )
             context["weather_codes"] = weather_codes
             context["city"] = city_name
+        else:
+            context = {"cities": filtered_cities, "search": search_term}
+    else:
+        context = {"cities": cities, "search": ""}
     return render(request, "myweather/weather.html", context)

@@ -3,11 +3,115 @@
 <html>
 <head>
     <title>MyWeather App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f8fa;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            background: #0078d7;
+            color: #fff;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        form {
+            background: #fff;
+            padding: 20px 30px;
+            margin: 0 auto 30px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        input[type="text"], select {
+            padding: 8px;
+            border: 1px solid #cfd8dc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background: #0078d7;
+            color: #fff;
+            border: none;
+            padding: 10px 0;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #005fa3;
+        }
+        h2, h3 {
+            text-align: center;
+            color: #0078d7;
+            margin-top: 30px;
+        }
+        ul {
+            background: #fff;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        table {
+            width: 95%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 10px 8px;
+            text-align: center;
+        }
+        th {
+            background: #e3f2fd;
+            color: #0078d7;
+        }
+        tr:nth-child(even) {
+            background: #f5f8fa;
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 95%;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        @media (max-width: 600px) {
+            form, ul, table {
+                max-width: 98vw;
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.5em;
+                padding: 12px 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <h1>MyWeather App</h1>
     <form method="post">
         {% csrf_token %}
+        <label for="search">Find city:</label>
+        <input type="text" id="search" name="search" placeholder="Enter city name" value="{{ search|default:'' }}"/>
         <label for="city">Select city:</label>
         <select name="city" id="city">
             {% for c in cities %}
