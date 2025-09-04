@@ -1,0 +1,15 @@
+# Ignore environment files
+.env
+myweather/.env
+
+# Ignore database
+db.sqlite3
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore IDE files
+.vscode/
+.DS_Store
+Thumbs.db

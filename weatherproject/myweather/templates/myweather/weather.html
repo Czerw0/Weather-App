@@ -7,7 +7,6 @@
 <body>
     <h1>MyWeather App</h1>
     <form method="post">
-        
         {% csrf_token %}
         <label for="city">Select city:</label>
         <select name="city" id="city">
@@ -25,6 +24,12 @@
             <li>Weather: {{ weather_codes|get_item:weather.weathercode }}</li>
             <li>Time: {{ weather.time }}</li>
         </ul>
+        <h3>Temperature Plot</h3>
+        <img src="data:image/png;base64,{{ temp_plot }}" alt="Temperature Plot"/>
+        <h3>Rain & Rain Probability Plot</h3>
+        <img src="data:image/png;base64,{{ rain_plot }}" alt="Rain Plot"/>
+        <h3>Cloud Cover Plot</h3>
+        <img src="data:image/png;base64,{{ cloud_plot }}" alt="Cloud Plot"/>
         <h3>Forecast (next 2 days):</h3>
         <table border="1">
             <tr>
