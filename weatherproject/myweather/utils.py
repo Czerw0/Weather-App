@@ -103,3 +103,4 @@ weather_codes = {
     99: "Thunderstorm with heavy hail",
 }
 
+days_options = [(1, "1 Day"), (2, "2 Days"), (3, "3 Days"), (5, "5 Days"), (7, "7 Days")]
