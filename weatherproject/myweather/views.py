@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib
+from matplotlib.style import context
 matplotlib.use("Agg") 
 matplotlib.rcParams["font.family"] = "Segoe UI Emoji"
 import io
@@ -36,13 +37,27 @@ def weather_view(request):
 
     if request.method == "POST":
         city_name = request.POST.get("city")
-        selected_days = int(request.POST.get("days"))
+        selected_days = int(request.POST.get("days", 2))
         context["selected_days"] = selected_days
 
-        if context["search"]:
-            context["cities"] = [c for c in cities if context["search"].lower() in c["name"].lower()]
+        # Always sort cities alphabetically
+        sorted_cities = sorted(cities, key=lambda c: c["name"].lower())
 
-        city = next((c for c in context["cities"] if c["name"].lower() == city_name.lower()), None)
+        # Apply search filter if provided
+        search_term = context["search"]
+        if search_term:
+            context["cities"] = [
+                c for c in sorted_cities
+                if search_term.lower() in c["name"].lower()
+            ]
+        else:
+            context["cities"] = sorted_cities
+
+        # Try to match selected city from the filtered list
+        city = next(
+            (c for c in context["cities"] if c["name"].lower() == city_name.lower()),
+            None
+        )
 
         if city:
             context["city"] = city_name
@@ -57,7 +72,7 @@ def weather_view(request):
                     f"https://api.open-meteo.com/v1/forecast?"
                     f"latitude={latitude}&longitude={longitude}"
                     f"&current_weather=true"
-                    f"&hourly=temperature_2m,cloudcover,rain,precipitation_probability,windspeed_10m"
+                    f"&hourly=temperature_2m,cloudcover,rain,precipitation_probability,windspeed_10m,pressure_msl,uv_index"
                     f"&daily=sunrise,sunset"
                     f"&start_date={start_date}&end_date={end_date}"
                     f"&timezone=auto"
@@ -74,6 +89,19 @@ def weather_view(request):
                 rain = data["hourly"]["rain"]
                 rain_prob = data["hourly"]["precipitation_probability"]
                 wind_speed = data["hourly"]["windspeed_10m"]
+                pressure = data["hourly"]["pressure_msl"]
+                uv_index = data["hourly"]["uv_index"]
+
+                context["temps"] = temps
+                context["clouds"] = clouds
+                context["rain"] = rain
+                context["rain_prob"] = rain_prob
+                context["wind_speed"] = wind_speed
+                context["plot_times"] = plot_times
+                context["daily_sunrise"] = data["daily"]["sunrise"]
+                context["daily_sunset"] = data["daily"]["sunset"]
+                context["pressure"] = pressure
+                context["uv_index"] = uv_index
                 
                 hour_interval = 1 if selected_days <= 2 else 2 if selected_days <= 5 else 4
 

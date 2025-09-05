@@ -1,163 +1,332 @@
 {% load weather_extras %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>MyWeather App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyWeather Dashboard</title>
     <style>
+        :root {
+            --primary-color: #0078d7;
+            --light-primary-color: #e3f2fd;
+            --background-color: #f4f7f9;
+            --card-background-color: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f5f8fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--background-color);
             margin: 0;
-            padding: 0;
+            color: var(--text-color);
         }
-        h1 {
-            background: #0078d7;
-            color: #fff;
-            padding: 20px 0;
-            margin-bottom: 30px;
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        header h1 {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            margin: -20px -20px 30px -20px;
             text-align: center;
-            letter-spacing: 2px;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
-        form {
-            background: #fff;
-            padding: 20px 30px;
-            margin: 0 auto 30px auto;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            max-width: 500px;
+
+        .card {
+            background-color: var(--card-background-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: end;
+        }
+        
+        .form-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
+
         label {
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #555;
         }
+
         input[type="text"], select {
-            padding: 8px;
-            border: 1px solid #cfd8dc;
-            border-radius: 4px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             font-size: 1em;
+            width: 100%;
+            box-sizing: border-box;
         }
+
         button {
-            background: #0078d7;
-            color: #fff;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
-            padding: 10px 0;
-            border-radius: 4px;
+            padding: 12px;
+            border-radius: 8px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.2s;
+            transition: background-color 0.2s;
+            width: 100%;
         }
+
         button:hover {
-            background: #005fa3;
+            background-color: #005fa3;
         }
-        h2, h3 {
+        
+        .error {
+            color: #d8000c;
+            background-color: #ffbaba;
+            border: 1px solid #d8000c;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
             text-align: center;
-            color: #0078d7;
-            margin-top: 30px;
-            height: 2;
         }
-        ul {
-            background: #fff;
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            max-width: 400px;
-            margin: 20px auto;
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
         }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .current-weather-card .weather-icon {
+            font-size: 5rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .current-weather-card .temp {
+            font-size: 3rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .current-weather-card .time {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        
+        .current-weather-card .description {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .current-weather-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .current-weather-card li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        .current-weather-card li:last-child {
+            border-bottom: none;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .chart-card img {
+            max-width: 100%;
+            display: block;
+        }
+
         table {
-            width: 95%;
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-            border-radius: 8px;
-            overflow: hidden;
         }
         th, td {
-            padding: 10px 8px;
+            padding: 12px;
             text-align: center;
+            border-bottom: 1px solid var(--border-color);
         }
         th {
-            background: #e3f2fd;
-            color: #0078d7;
+            background-color: var(--light-primary-color);
+            font-weight: 600;
         }
-        tr:nth-child(even) {
-            background: #f5f8fa;
+        tr:last-child td {
+            border-bottom: none;
         }
-        img {
-            display: block;
-            margin: 20px auto;
-            max-width: 95%;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        }
-        .error {
-            color: crimson;
-            background-color: #fdd;
-            border: 1px solid crimson;
-            padding: 15px;
-            margin: 20px auto;
-            max-width: 500px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        @media (max-width: 600px) {
-            form, ul, table {
-                max-width: 98vw;
-                padding: 10px;
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
             }
-            h1 {
-                font-size: 1.5em;
-                padding: 12px 0;
+        }
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
             }
+             header h1 {
+                margin: 0 0 20px 0;
+                border-radius: 0 0 12px 12px;
+             }
+             .container {
+                padding: 0;
+                margin: 0;
+             }
+             .card {
+                border-radius: 0;
+                margin-bottom: 10px;
+                box-shadow: none;
+                border-bottom: 1px solid var(--border-color);
+             }
         }
     </style>
 </head>
 <body>
-    <h1>MyWeather App</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="search">Find city:</label>
-        <input type="text" id="search" name="search" placeholder="Enter city name" value="{{ search|default:'' }}"/>
-        <label for="city">Select city:</label>
-        <select name="city" id="city">
-            {% for c in cities %}
-                <option value="{{ c.name }}" {% if c.name == city %}selected{% endif %}>{{ c.name }}</option>
-            {% endfor %}
-        </select>
-        <label for="days">Days:</label>
-        <select name="days" id="days">
-            {% for value, label in days_options %}
-                <option value="{{ value }}" {% if value == selected_days %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit">Get Weather</button>
-    </form>
-    
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% endif %}
+    <div class="container">
+        <header>
+            <h1>MyWeather Dashboard</h1>
+        </header>
 
-    {% if weather %}
-        <h2>Current Weather for {{ city }}</h2>
-        <ul>
-            <li>Temperature: {{ weather.temperature }}°C</li>
-            <li>Windspeed: {{ weather.windspeed }} km/h</li>
-            <li>Weather: {{ weather_codes|get_item:weather.weathercode }}</li>
-            <li>Time: {{ weather.time|slice:"-5" }}</li>
-        </ul>
-        <h2>Temperature Forecast (Next {{ selected_days }} Days)</h2>
-        <img src="data:image/png;base64,{{ temp_plot }}" alt="Temperature Plot"/>
-        <h2>Rain Forecast (Next {{ selected_days }} Days)</h2>
-        <img src="data:image/png;base64,{{ rain_plot }}" alt="Rain Plot"/>
-        <h2>Cloud Cover Forecast (Next {{ selected_days }} Days)</h2>
-        <img src="data:image/png;base64,{{ cloud_plot }}" alt="Cloud Plot"/>
-        <h2>Wind Speed Forecast (Next {{ selected_days }} Days)</h2>
-        <img src="data:image/png;base64,{{ wind_plot }}" alt="Wind Plot"/>
-    {% endif %}
+        <main>
+            <div class="card form-card">
+                <form method="post" style="display: contents;">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="city">Select City:</label>
+                        <select name="city" id="city">
+                            {% for c in cities %}
+                                <option value="{{ c.name }}" {% if c.name == city %}selected{% endif %}>{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="days">Forecast Days:</label>
+                        <select name="days" id="days">
+                            {% for value, label in days_options %}
+                                <option value="{{ value }}" {% if value == selected_days %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label> <!-- Spacer -->
+                        <button type="submit">Get Weather</button>
+                    </div>
+                </form>
+            </div>
+            
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+
+            {% if weather %}
+            <div class="dashboard">
+                <div class="card current-weather-card">
+                    <h2>Now in {{ city }}</h2>
+                    <div class="weather-icon">
+                    <div class="time"> {{ weather.time|slice:"11:16" }} </div>
+                        {% with weather.weathercode as code %}
+                            {% if code == 0 %}☀️
+                            {% elif code == 1 or code == 2 %}🌤️
+                            {% elif code == 3 %}☁️
+                            {% elif code == 45 or code == 48 %}🌫️
+                            {% elif code > 50 and code < 70 %}🌧️
+                            {% elif code > 70 and code < 80 %}🌨️
+                            {% elif code > 79 and code < 90 %}🌦️
+                            {% elif code > 90 %}⛈️
+                            {% else %}🌡️
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="temp">{{ weather.temperature }}°C</div>
+                    <div class="description">{{ weather_codes|get_item:weather.weathercode }}</div>
+                    <ul>
+                        <li><span>Windspeed</span> <strong>{{ weather.windspeed }} km/h</strong></li>
+                        <li><span>Cloud Coverage</span> <strong>{{ clouds.0 }}%</strong></li>
+                        <li><span>Pressure</span> <strong>{{ pressure.0 }} hPa</strong></li>
+                        <li><span>UV Index</span> <strong>{{ uv_index.0 }}</strong></li>
+                        <li><span>Sunrise</span> <strong>{{ daily_sunrise.0|slice:"11:16" }}</strong></li>
+                        <li><span>Sunset</span> <strong>{{ daily_sunset.0|slice:"11:16" }}</strong></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="card chart-card">
+                        <h2>Temperature</h2>
+                        <img src="data:image/png;base64,{{ temp_plot }}" alt="Temperature Plot"/>
+                    </div>
+                    <div class="card chart-card">
+                        <h2>Rain & Probability</h2>
+                        <img src="data:image/png;base64,{{ rain_plot }}" alt="Rain Plot"/>
+                    </div>
+                    <div class="card chart-card">
+                        <h2>Cloud Coverage</h2>
+                        <img src="data:image/png;base64,{{ cloud_plot }}" alt="Cloud Plot"/>
+                    </div>
+                    <div class="card chart-card">
+                        <h2>Wind Speed</h2>
+                        <img src="data:image/png;base64,{{ wind_plot }}" alt="Wind Plot"/>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if forecast_by_day %}
+            <div class="card">
+                <h2>Hourly Forecast</h2>
+                {% for day, hourly_list in forecast_by_day.items %}
+                    <h3>{{ day }}</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th><th>Forecast</th><th>Temp (°C)</th><th>Rain (mm)</th><th>Rain Chance (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hour_data in hourly_list %}
+                                <tr>
+                                    <td>{{ hour_data.time }}</td>
+                                    <td>{{ weather_codes|get_item:hour_data.weathercode }}</td>
+                                    <td>{{ hour_data.temp }}</td>
+                                    <td>{{ hour_data.rain }}</td>
+                                    <td>{{ hour_data.rain_prob }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </main>
+    </div>
 </body>
 </html>
