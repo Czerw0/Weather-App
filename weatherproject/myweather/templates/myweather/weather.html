@@ -115,6 +115,26 @@
             gap: 25px;
             margin-top: 25px;
         }
+        .info-alert {
+            background-color: hsla(214, 100%, 91%, 1.00);
+            border-left: 5px var(--primary-color) solid;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 1.1em;
+            color: black; 
+            box-shadow: var(--shadow);
+        }
+
+        .info-alert svg {
+            flex-shrink: 0;
+            margin-right: 15px;
+            width: 24px;
+            height: 24px;
+            fill: red;
+        }
 
         .current-weather-card .weather-icon {
             font-size: 5rem;
@@ -244,9 +264,7 @@
                 </form>
             </div>
             
-            {% if error %}
-                <p class="error">{{ error }}</p>
-            {% endif %}
+            
 
             {% if weather %}
             <div class="dashboard">
@@ -277,8 +295,19 @@
                         <li><span>Sunrise</span> <strong>{{ daily_sunrise.0|slice:"11:16" }}</strong></li>
                         <li><span>Sunset</span> <strong>{{ daily_sunset.0|slice:"11:16" }}</strong></li>
                     </ul>
+                    {% if error %}
+                        <p class="error">{{ error }}</p>
+                    {% endif %}
+                    {% if alert %}
+                    <div class="info-alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM6.95 4.95a.905.905 0 1 1 1.28.02l.02.022L8.5 7.433V11.5a.75.75 0 0 1-1.5 0V7.433L6.95 4.95z"/>
+                        </svg>
+                        <span>{{ alert }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-
+                
                 <div>
                     <div class="card chart-card">
                         <h2>Temperature</h2>
